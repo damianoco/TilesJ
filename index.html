@@ -97,13 +97,22 @@ function render(){
   $("bank").innerHTML=b;
   return sum;
 }
+function renderAnim(){var old={};
+document.querySelectorAll(".tile").forEach(function(b){old[b.getAttribute("data-id")]=b.getBoundingClientRect()});
+var sum=render();
+document.querySelectorAll(".tile").forEach(function(b){var o=old[b.getAttribute("data-id")];if(!o)return;
+var n=b.getBoundingClientRect(),dx=o.left-n.left,dy=o.top-n.top;if(!dx&&!dy)return;
+b.style.transition="none";b.style.transform="translate("+dx+"px,"+dy+"px)";b.style.zIndex=5;b.getBoundingClientRect();
+b.style.transition="transform .4s ease";b.style.transform="";
+setTimeout(function(){b.style.transition="";b.style.zIndex=""},450)});
+return sum}
 var seq=0;
 function tap(e){
   if(done)return;var el=e.target.closest(".tile");if(!el)return;
   var t=tiles[+el.getAttribute("data-id")];
   if(!t.used&&tiles.filter(function(x){return x.used}).length>=2){$("msg").textContent="Only two tiles! Tap one to take it off.";$("tray").classList.add("shake");setTimeout(function(){$("tray").classList.remove("shake")},450);return}
   t.used=!t.used;if(t.used)t.ord=++seq;
-  var sum=render(),cnt=tiles.filter(function(x){return x.used}).length;
+  var sum=renderAnim(),cnt=tiles.filter(function(x){return x.used}).length;
   if(sum===target&&cnt===2){done=true;tally+="😊";$("tally").textContent=tally;$("tray").classList.add("ok");$("msg").textContent="You did it! 🌟";document.body.classList.add("won");confetti()}
   else if(sum>target){$("msg").textContent="Too many! Tap a tile to take it off.";$("tray").classList.add("shake");setTimeout(function(){$("tray").classList.remove("shake")},450)}
   else $("msg").textContent="";
@@ -111,7 +120,7 @@ function tap(e){
 $("bank").addEventListener("click",tap);$("tray").addEventListener("click",tap);
 document.querySelectorAll(".nx").forEach(function(b){b.addEventListener("click",newGame)});
 $("help").addEventListener("click",function(){
-  if(done)return;tiles.forEach(function(t){t.used=false});hinting=true;tally+="🤪";$("tally").textContent=tally;$("msg").textContent="Try the glowing tiles!";render();
+  if(done)return;tiles.forEach(function(t){t.used=false});hinting=true;tally+="🤪";$("tally").textContent=tally;$("msg").textContent="Try the glowing tiles!";renderAnim();
 });
 newGame();
 </script></body></html>
